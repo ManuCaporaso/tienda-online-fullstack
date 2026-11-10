@@ -1,0 +1,182 @@
+[
+  {
+    "id": 72,
+    "name": "Remera Puma Hombre",
+    "price": 27999,
+    "categoryId": 2,
+    "description": "Remera Running Ruma",
+    "imageUrl": "1727733285968.png",
+    "highlighted": true
+  },
+  {
+    "id": 73,
+    "name": "Remera River Plate adidas",
+    "price": 49999,
+    "categoryId": 2,
+    "description": "Remera River Plate adidas Hombre Temporada 2024/25",
+    "imageUrl": "1727733256073.png",
+    "highlighted": true
+  },
+  {
+    "id": 74,
+    "name": "Musculosa Entrenamiento adidas",
+    "price": 55999,
+    "categoryId": 3,
+    "description": "Musculosa Entrenamiento adidas D4t HR TK Hombre",
+    "imageUrl": "1727733430203.png",
+    "highlighted": false
+  },
+  {
+    "id": 75,
+    "name": "Musculosa Boca Juniors",
+    "price": 39199,
+    "categoryId": 3,
+    "description": "Musculosa Boca Juniors adidas Tiro 23/24 Hombre",
+    "imageUrl": "1727733737020.png",
+    "highlighted": false
+  },
+  {
+    "id": 76,
+    "name": "Musculosa Fútbol Argentina",
+    "price": 29399,
+    "categoryId": 3,
+    "description": "Musculosa Fútbol adidas Argentina Tiro 23 Hombre",
+    "imageUrl": "1727733829370.png",
+    "highlighted": false
+  },
+  {
+    "id": 77,
+    "name": "Short Básquet Nike",
+    "price": 99999,
+    "categoryId": 4,
+    "description": "Short Básquet Nike Dna 8in College Hombre",
+    "imageUrl": "1727733945305.png",
+    "highlighted": false
+  },
+  {
+    "id": 78,
+    "name": "Short River Plate",
+    "price": 79999,
+    "categoryId": 4,
+    "description": "Short River Plate adidas 2024 SZN Hombre",
+    "imageUrl": "1727734017787.png",
+    "highlighted": false
+  },
+  {
+    "id": 79,
+    "name": "Short adidas Selección Argentina",
+    "price": 59999,
+    "categoryId": 4,
+    "description": "Short adidas Selección Argentina Alternativa 2024 Hombre",
+    "imageUrl": "1727734108161.png",
+    "highlighted": false
+  },
+  {
+    "id": 80,
+    "name": "Pantalón adidas",
+    "price": 83999,
+    "categoryId": 5,
+    "description": "Pantalón adidas River Plate 2024/25",
+    "imageUrl": "1727734501491.png",
+    "highlighted": false
+  },
+  {
+    "id": 81,
+    "name": "Pantalón Fútbol Boca",
+    "price": 83999,
+    "categoryId": 5,
+    "description": "Pantalón Fútbol Boca Juniors 23/24 Hombre",
+    "imageUrl": "1727734604227.png",
+    "highlighted": false
+  },
+  {
+    "id": 82,
+    "name": "Pantalón Fútbol Nike",
+    "price": 107999,
+    "categoryId": 5,
+    "description": "Pantalón Fútbol Nike Dri-FIT Strike Hombre",
+    "imageUrl": "1727734621944.png",
+    "highlighted": false
+  },
+  {
+    "id": 83,
+    "name": "Buzo Nike Sportswear",
+    "price": 86499,
+    "categoryId": 6,
+    "description": "Buzo Nike Sportswear Club Fleece Hombre",
+    "imageUrl": "1727734878589.png",
+    "highlighted": false
+  },
+  {
+    "id": 84,
+    "name": "Buzo Fútbol adidas River",
+    "price": 119999,
+    "categoryId": 6,
+    "description": "Buzo Fútbol adidas River Plate Entrenamiento 2024 Hombre",
+    "imageUrl": "1727734931124.png",
+    "highlighted": false
+  },
+  {
+    "id": 85,
+    "name": "Buzo Independiente",
+    "price": 67999,
+    "categoryId": 6,
+    "description": "Buzo Independiente Puma Hombre",
+    "imageUrl": "1727734975743.png",
+    "highlighted": false
+  },
+  {
+    "id": 86,
+    "name": "Campera Argentina adidas",
+    "price": 169999,
+    "categoryId": 7,
+    "description": "Campera Argentina adidas Anthem Hombre",
+    "imageUrl": "1727735458110.png",
+    "highlighted": false
+  },
+  {
+    "id": 87,
+    "name": "Campera Boca Juniors",
+    "price": 64999,
+    "categoryId": 7,
+    "description": "Campera Fútbol adidas Anthem Boca Juniors Hombre",
+    "imageUrl": "1727735521043.png",
+    "highlighted": false
+  },
+  {
+    "id": 88,
+    "name": "Campera adidas Future",
+    "price": 109999,
+    "categoryId": 7,
+    "description": "Campera adidas Future Icons 3 Tiras Hombre",
+    "imageUrl": "1727735574908.png",
+    "highlighted": false
+  },
+  {
+    "id": 89,
+    "name": "Camiseta River Plate",
+    "price": 99999,
+    "categoryId": 8,
+    "description": "Camiseta River Plate adidas Titular 24/25 Hombre",
+    "imageUrl": "1727735680688.png",
+    "highlighted": true
+  },
+  {
+    "id": 90,
+    "name": "Camiseta Boca Juniors",
+    "price": 59999,
+    "categoryId": 8,
+    "description": "Camiseta Boca Juniors adidas Titular 23/24 Hombre",
+    "imageUrl": "1727735721625.png",
+    "highlighted": false
+  },
+  {
+    "id": 91,
+    "name": "Camiseta Nike San Lorenzo Suplente",
+    "price": 89999,
+    "categoryId": 8,
+    "description": "Camiseta Nike San Lorenzo Suplente 2024 Hombre",
+    "imageUrl": "1727735766580.png",
+    "highlighted": false
+  }
+]
