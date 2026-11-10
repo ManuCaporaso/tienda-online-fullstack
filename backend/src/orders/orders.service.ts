@@ -122,11 +122,10 @@ export class OrdersService {
         },
       });
 
-      if (dto.sessionId) {
-        await tx.cartReservation.deleteMany({
-          where: { sessionId: dto.sessionId },
-        });
-      }
+      // A propósito NO liberamos las reservas del carrito acá. Si el cliente
+      // abandona Mercado Pago y vuelve atrás, sus productos y la reserva de
+      // 10 minutos deben seguir vigentes. La liberación ocurre recién en
+      // `/checkout/success` (carrito confirmado) o al expirar la reserva.
 
       return order;
     });

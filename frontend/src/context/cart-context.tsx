@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { toast } from "sonner";
@@ -73,7 +72,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [deliveryType, setDeliveryTypeState] =
     useState<DeliveryType>("PICKUP");
   const [isOpen, setIsOpen] = useState(false);
-  const hydrated = useRef(false);
+  // `hydrated` es estado (no ref) a propósito: así el efecto de persistencia no
+  // corre en el mismo commit en el que todavía no se leyó localStorage. Con un
+  // ref se escribía `{ items: [] }` antes de restaurar el carrito y, al volver
+  // desde Mercado Pago, ese carrito vacío podía quedar persistido.
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
@@ -97,17 +100,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // storage corrupta: se ignora
     } finally {
-      hydrated.current = true;
+      setHydrated(true);
     }
   }, []);
 
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!hydrated) return;
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ items, deliveryType }),
     );
-  }, [items, deliveryType]);
+  }, [items, deliveryType, hydrated]);
 
   const addItem = useCallback(
     async (
@@ -299,6 +302,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [items, removeItem],
   );
 
+  /**
+   * Limpieza total del carrito: libera las reservas de stock de la sesión y
+   * vacía los ítems. Solo debe invocarse:
+   *  - cuando el usuario confirma “Vaciar carrito”, o
+   *  - cuando `/checkout/success` valida que la orden quedó `APPROVED`.
+   * Nunca al crear la preferencia de pago ni al entrar/salir del checkout.
+   */
   const clear = useCallback(async (options?: { silent?: boolean }) => {
     const sessionId = getSessionId();
     try {

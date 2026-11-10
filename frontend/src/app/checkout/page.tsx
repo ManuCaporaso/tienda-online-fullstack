@@ -93,6 +93,10 @@ export default function CheckoutPage() {
     setProcessing(true);
 
     try {
+      // Importante: NO vaciamos el carrito ni liberamos reservas acá. El
+      // carrito y la reserva de 10 minutos deben sobrevivir si el cliente
+      // abandona Mercado Pago y vuelve atrás. La limpieza se hace únicamente
+      // en `/checkout/success`, después de validar que la orden está APPROVED.
       const order = await apiFetch<Order>("/api/orders", {
         method: "POST",
         body: {

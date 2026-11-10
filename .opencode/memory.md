@@ -69,6 +69,7 @@
 - Las reseñas requieren una orden `APPROVED` del producto (webhook de Mercado Pago).
 - Imágenes locales en `backend/assets/images` (roadmap: Cloudinary/S3).
 - `ValidationPipe` sin `enableImplicitConversion` para respetar booleanos de `FormData`.
+- El carrito se limpia **solo** en `/checkout/success`, después de consultar `GET /api/orders/:id` y confirmar que la orden quedó `APPROVED`. Las reservas de 10 minutos sobreviven al redirect de Mercado Pago y solo se liberan en ese punto (o al expirar).
 
 ## Credenciales de prueba
 

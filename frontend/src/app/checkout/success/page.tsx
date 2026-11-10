@@ -13,7 +13,9 @@ export default function CheckoutSuccessPage() {
           <div className="h-96 animate-pulse rounded-3xl bg-slate-200" />
         }
       >
-        <CheckoutResult variant="success" />
+        {/* `verifyApproval` hace que el carrito se vacíe únicamente después de
+            consultar la orden y confirmar que quedó en estado APPROVED. */}
+        <CheckoutResult variant="success" verifyApproval />
       </Suspense>
     </div>
   );
