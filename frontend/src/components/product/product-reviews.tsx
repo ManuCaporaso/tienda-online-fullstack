@@ -209,7 +209,7 @@ export function ProductReviews({ productId }: { productId: string }) {
 
       {user && !data.canReview && !data.myReview && (
         <p className="mt-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
-          Solo los compradores con una compra aprobada pueden dejar reseñas.
+          Solo podés reseñar productos que hayas comprado y recibido.
         </p>
       )}
 

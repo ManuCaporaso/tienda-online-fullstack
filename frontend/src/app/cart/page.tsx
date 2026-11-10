@@ -206,9 +206,9 @@ export default function CartPage() {
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setDeliveryType("HOME_DELIVERY")}
+              onClick={() => setDeliveryType("SHIPPING")}
               className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
-                deliveryType === "HOME_DELIVERY"
+                deliveryType === "SHIPPING"
                   ? "border-emerald-600 bg-emerald-50 text-emerald-700"
                   : "border-slate-200 text-slate-600 hover:border-slate-300"
               }`}

@@ -89,6 +89,7 @@ Aplicación de indumentaria deportiva con catálogo, carrito, checkout con Merca
   - toggle de destacados (máximo 3, validado en frontend y backend),
   - eliminación con confirmación modal,
   - solapa **Preguntas** (`/admin/questions`) para responder dudas pendientes.
+  - solapa **Ventas** (`/admin/orders`) con filtros por estado/entrega, detalle de cada pedido y seguimiento (estado + código de tracking).
 - **Webhook** de Mercado Pago para actualizar el estado de las órdenes y restaurar stock si se rechaza.
 
 ---
@@ -209,7 +210,7 @@ Notas:
 | `/account` | Login y registro (con pantalla de confirmación de correo) |
 | `/verify-email?token=...` | Activa la cuenta desde el enlace del correo |
 | `/profile` | **Mi perfil**: datos personales, libreta de direcciones y mis compras |
-| `/admin` · `/admin/categories` · `/admin/banners` · `/admin/questions` | Panel de administración |
+| `/admin` · `/admin/orders` · `/admin/categories` · `/admin/banners` · `/admin/questions` | Panel de administración |
 
 ### `/profile`
 
@@ -338,6 +339,8 @@ npm run dev            # http://localhost:3000
 | POST | `/api/reservations` | público (reserva stock por `sessionId`) |
 | DELETE | `/api/reservations/:id` · `/api/reservations?sessionId=` | público |
 | POST/GET | `/api/orders` | auth |
+| GET | `/api/orders/admin` | ADMIN (filtros `status`, `deliveryType`) |
+| PATCH | `/api/orders/admin/:id/status` | ADMIN (`status`, `trackingNumber?`) |
 | POST | `/api/payments/preference` | auth |
 | POST | `/api/payments/webhook` | público (MP) |
 

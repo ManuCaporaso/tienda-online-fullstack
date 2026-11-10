@@ -1,6 +1,13 @@
 export type Role = "ADMIN" | "CLIENT";
-export type DeliveryType = "HOME_DELIVERY" | "PICKUP";
-export type OrderStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type DeliveryType = "SHIPPING" | "PICKUP";
+export type OrderStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "IN_PREPARATION"
+  | "READY_FOR_PICKUP"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
 
 export interface User {
   id: number;
@@ -25,6 +32,15 @@ export interface Address {
   isDefault: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ShippingAddress {
+  street: string;
+  number: string;
+  apartment?: string | null;
+  city: string;
+  state: string;
+  zipCode: string;
 }
 
 export interface ProductReview {
@@ -133,9 +149,20 @@ export interface Order {
   total: number;
   status: OrderStatus;
   deliveryType: DeliveryType;
+  shippingAddress?: ShippingAddress | null;
+  trackingNumber?: string | null;
+  paymentMethod?: string | null;
   mpPreferenceId?: string | null;
   mpPaymentId?: string | null;
   createdAt: string;
+  updatedAt?: string;
+  user?: {
+    id: number;
+    email: string;
+    name?: string | null;
+    phone?: string | null;
+    documentNumber?: string | null;
+  };
   items: OrderItem[];
 }
 

@@ -23,7 +23,7 @@ export class ReviewsController {
     @Param('productId') productId: string,
     @CurrentUser() user: AuthUser | null,
   ) {
-    return this.reviewsService.findForProduct(productId, user?.id);
+    return this.reviewsService.findForProduct(productId, user);
   }
 
   @Post()
@@ -33,6 +33,6 @@ export class ReviewsController {
     @CurrentUser() user: AuthUser,
     @Body() dto: CreateReviewDto,
   ) {
-    return this.reviewsService.create(productId, user.id, dto);
+    return this.reviewsService.create(productId, user, dto);
   }
 }

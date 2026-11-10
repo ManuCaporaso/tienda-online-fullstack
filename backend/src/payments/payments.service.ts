@@ -13,6 +13,19 @@ import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import { AuthUser } from '../common/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 
+// ⚠️ TEMPORAL: precio simbólico de ARS 1 para validar un pago real de punta a
+// punta. Revertir a `item.price` cuando termine la prueba.
+const TEST_UNIT_PRICE_ARS = 1;
+
+// Estados que ya no admiten un nuevo intento de pago.
+const PAID_OR_FULFILLED_STATUSES: OrderStatus[] = [
+  OrderStatus.APPROVED,
+  OrderStatus.IN_PREPARATION,
+  OrderStatus.READY_FOR_PICKUP,
+  OrderStatus.SHIPPED,
+  OrderStatus.DELIVERED,
+];
+
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
@@ -33,7 +46,7 @@ export class PaymentsService {
 
     if (isPlaceholder) {
       throw new BadRequestException(
-        'Configurá un MERCADOPAGO_ACCESS_TOKEN real de sandbox (empieza con TEST-) en backend/.env para generar preferencias de pago.',
+        'Configurá un MERCADOPAGO_ACCESS_TOKEN real en backend/.env (TEST- para sandbox o APP_USR- para producción) para generar preferencias de pago.',
       );
     }
 
@@ -52,8 +65,8 @@ export class PaymentsService {
     if (user.role !== Role.ADMIN && order.userId !== user.id) {
       throw new UnauthorizedException('No podés pagar este pedido');
     }
-    if (order.status === OrderStatus.APPROVED) {
-      throw new BadRequestException('El pedido ya está aprobado');
+    if (PAID_OR_FULFILLED_STATUSES.includes(order.status)) {
+      throw new BadRequestException('El pedido ya fue pagado');
     }
 
     const appUrl =
@@ -62,6 +75,13 @@ export class PaymentsService {
       this.config.get<string>('BACKEND_PUBLIC_URL') ?? 'http://localhost:3030';
 
     const preference = new Preference(this.getClient());
+
+    // Mercado Pago exige una URL pública HTTPS para `auto_return`. En
+    // desarrollo (localhost o IP de LAN) la preferencia se crea igual, pero
+    // sin redirección automática: el usuario vuelve con los back_urls.
+    const isLocalAppUrl =
+      /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(appUrl);
+    const canAutoReturn = /^https:\/\//i.test(appUrl) && !isLocalAppUrl;
 
     let result;
     try {
@@ -74,7 +94,7 @@ export class PaymentsService {
               : item.product.name,
             description: item.product.description ?? undefined,
             quantity: item.quantity,
-            unit_price: item.price,
+            unit_price: TEST_UNIT_PRICE_ARS,
             currency_id: 'ARS',
           })),
           payer: { email: order.user.email },
@@ -83,7 +103,7 @@ export class PaymentsService {
             failure: `${appUrl}/checkout/failure`,
             pending: `${appUrl}/checkout/pending`,
           },
-          auto_return: 'approved',
+          ...(canAutoReturn ? { auto_return: 'approved' as const } : {}),
           external_reference: String(order.id),
           notification_url: `${backendUrl}/api/payments/webhook`,
         },
@@ -143,13 +163,18 @@ export class PaymentsService {
     await this.prisma.$transaction(async (tx) => {
       await tx.order.update({
         where: { id: orderId },
-        data: { status, mpPaymentId: String(paymentId) },
+        data: {
+          status,
+          mpPaymentId: String(paymentId),
+          paymentMethod:
+            payment.payment_method_id ?? payment.payment_type_id ?? null,
+        },
       });
 
-      // Si el pago se rechaza, devolvemos el stock reservado.
+      // Si el pago se rechaza/cancela, devolvemos el stock reservado.
       if (
-        status === OrderStatus.REJECTED &&
-        order.status !== OrderStatus.REJECTED
+        status === OrderStatus.CANCELLED &&
+        order.status !== OrderStatus.CANCELLED
       ) {
         for (const item of order.items) {
           await tx.product.update({
@@ -171,7 +196,7 @@ export class PaymentsService {
       case 'rejected':
       case 'cancelled':
       case 'refunded':
-        return OrderStatus.REJECTED;
+        return OrderStatus.CANCELLED;
       default:
         return OrderStatus.PENDING;
     }

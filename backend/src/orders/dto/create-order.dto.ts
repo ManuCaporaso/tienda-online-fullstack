@@ -10,6 +10,27 @@ import {
 } from 'class-validator';
 import { DeliveryType } from '@prisma/client';
 
+export class ShippingAddressDto {
+  @IsString()
+  street: string;
+
+  @IsString()
+  number: string;
+
+  @IsOptional()
+  @IsString()
+  apartment?: string;
+
+  @IsString()
+  city: string;
+
+  @IsString()
+  state: string;
+
+  @IsString()
+  zipCode: string;
+}
+
 export class OrderItemDto {
   @IsString()
   productId: string;
@@ -30,9 +51,14 @@ export class OrderItemDto {
 
 export class CreateOrderDto {
   @IsEnum(DeliveryType, {
-    message: 'deliveryType debe ser HOME_DELIVERY o PICKUP',
+    message: 'deliveryType debe ser SHIPPING o PICKUP',
   })
   deliveryType: DeliveryType;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ShippingAddressDto)
+  shippingAddress?: ShippingAddressDto;
 
   @IsOptional()
   @IsString()

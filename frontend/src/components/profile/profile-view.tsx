@@ -52,10 +52,87 @@ const statusStyles: Record<
   Order["status"],
   { label: string; className: string }
 > = {
-  PENDING: { label: "Pendiente", className: "bg-amber-100 text-amber-700" },
-  APPROVED: { label: "Aprobado", className: "bg-emerald-100 text-emerald-700" },
-  REJECTED: { label: "Rechazado", className: "bg-red-100 text-red-700" },
+  PENDING: {
+    label: "Pendiente de pago",
+    className: "bg-amber-100 text-amber-700",
+  },
+  APPROVED: {
+    label: "Pago aprobado",
+    className: "bg-emerald-100 text-emerald-700",
+  },
+  IN_PREPARATION: {
+    label: "En preparación",
+    className: "bg-sky-100 text-sky-700",
+  },
+  READY_FOR_PICKUP: {
+    label: "Listo para retirar",
+    className: "bg-indigo-100 text-indigo-700",
+  },
+  SHIPPED: {
+    label: "Enviado",
+    className: "bg-violet-100 text-violet-700",
+  },
+  DELIVERED: {
+    label: "Entregado",
+    className: "bg-slate-200 text-slate-700",
+  },
+  CANCELLED: {
+    label: "Cancelado",
+    className: "bg-red-100 text-red-700",
+  },
 };
+
+const reviewableStatuses = new Set<Order["status"]>([
+  "APPROVED",
+  "IN_PREPARATION",
+  "READY_FOR_PICKUP",
+  "SHIPPED",
+  "DELIVERED",
+]);
+
+function statusMessage(order: Order): { text: string; className: string } | null {
+  switch (order.status) {
+    case "PENDING":
+      return {
+        text: "Estamos esperando la confirmación del pago. Te avisaremos cuando se acredite.",
+        className: "border-amber-200 bg-amber-50 text-amber-700",
+      };
+    case "APPROVED":
+      return {
+        text: "¡Pago acreditado! Estamos preparando tu pedido.",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      };
+    case "IN_PREPARATION":
+      return {
+        text: "Estamos preparando tu pedido.",
+        className: "border-sky-200 bg-sky-50 text-sky-700",
+      };
+    case "READY_FOR_PICKUP":
+      return {
+        text: "Tu pedido está listo para ser retirado por el local.",
+        className: "border-indigo-200 bg-indigo-50 text-indigo-700",
+      };
+    case "SHIPPED":
+      return {
+        text: order.trackingNumber
+          ? `Tu paquete fue enviado — Seguimiento: #${order.trackingNumber}`
+          : "Tu paquete fue enviado.",
+        className: "border-violet-200 bg-violet-50 text-violet-700",
+      };
+    case "DELIVERED":
+      return {
+        text: "Tu pedido fue entregado. ¡Gracias por tu compra!",
+        className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+      };
+    case "CANCELLED":
+      return {
+        text: "Este pedido fue cancelado.",
+        className: "border-red-200 bg-red-50 text-red-700",
+      };
+    default:
+      return null;
+  }
+}
 
 function Stars({ value, size = "h-4 w-4" }: { value: number; size?: string }) {
   return (
@@ -737,6 +814,7 @@ export function ProfileView() {
             <div className="mt-5 space-y-4">
               {orders.map((order) => {
                 const status = statusStyles[order.status];
+                const message = statusMessage(order);
                 return (
                   <article
                     key={order.id}
@@ -777,10 +855,18 @@ export function ProfileView() {
                       </div>
                     </div>
 
+                    {message && (
+                      <p
+                        className={`mt-3 rounded-xl border px-3 py-2 text-xs font-semibold ${message.className}`}
+                      >
+                        {message.text}
+                      </p>
+                    )}
+
                     <div className="mt-3 space-y-3">
                       {order.items.map((item) => {
                         const canReview =
-                          order.status === "APPROVED" &&
+                          reviewableStatuses.has(order.status) &&
                           !reviewedProductIds.has(item.productId);
 
                         return (

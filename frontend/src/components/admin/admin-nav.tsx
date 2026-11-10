@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Image as ImageIcon, MessageCircleQuestion, Package, Tags } from "lucide-react";
+import { Image as ImageIcon, MessageCircleQuestion, Package, ShoppingBag, Tags } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Productos", icon: Package },
+  { href: "/admin/orders", label: "Ventas", icon: ShoppingBag },
   { href: "/admin/categories", label: "Categorías", icon: Tags },
   { href: "/admin/banners", label: "Banners", icon: ImageIcon },
   {

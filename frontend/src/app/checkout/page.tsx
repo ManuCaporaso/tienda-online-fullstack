@@ -97,6 +97,17 @@ export default function CheckoutPage() {
         method: "POST",
         body: {
           deliveryType,
+          shippingAddress:
+            deliveryType === "SHIPPING" && selectedAddress
+              ? {
+                  street: selectedAddress.street,
+                  number: selectedAddress.number,
+                  apartment: selectedAddress.apartment ?? "",
+                  city: selectedAddress.city,
+                  state: selectedAddress.state,
+                  zipCode: selectedAddress.zipCode,
+                }
+              : undefined,
           sessionId: getSessionId(),
           items: items.map((item) => ({
             productId: item.id,
@@ -224,9 +235,9 @@ export default function CheckoutPage() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={() => setDeliveryType("HOME_DELIVERY")}
+                onClick={() => setDeliveryType("SHIPPING")}
                 className={`flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition ${
-                  deliveryType === "HOME_DELIVERY"
+                  deliveryType === "SHIPPING"
                     ? "border-emerald-600 bg-emerald-50"
                     : "border-slate-200 hover:border-slate-300"
                 }`}
@@ -257,7 +268,7 @@ export default function CheckoutPage() {
                 </span>
               </button>
             </div>
-            {deliveryType === "HOME_DELIVERY" && (
+            {deliveryType === "SHIPPING" && (
               <div className="mt-4 rounded-xl border border-slate-200 p-3">
                 {addresses.length > 0 ? (
                   <>

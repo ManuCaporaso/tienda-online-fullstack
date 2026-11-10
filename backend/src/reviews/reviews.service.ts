@@ -4,15 +4,26 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, Role } from '@prisma/client';
+import { AuthUser } from '../common/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
+
+// Estados en los que el pago ya fue acreditado y el cliente puede reseñar:
+// desde la aprobación del pago hasta la entrega inclusive.
+const REVIEWABLE_ORDER_STATUSES: OrderStatus[] = [
+  OrderStatus.APPROVED,
+  OrderStatus.IN_PREPARATION,
+  OrderStatus.READY_FOR_PICKUP,
+  OrderStatus.SHIPPED,
+  OrderStatus.DELIVERED,
+];
 
 @Injectable()
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findForProduct(productId: string, userId?: number | null) {
+  async findForProduct(productId: string, user?: AuthUser | null) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { id: true },
@@ -45,20 +56,29 @@ export class ReviewsService {
       userName: review.user.email.split('@')[0],
     });
 
-    const myReview = userId
-      ? reviews.find((review) => review.userId === userId)
+    const myReview = user
+      ? reviews.find((review) => review.userId === user.id)
       : undefined;
 
     let canReview = false;
-    if (userId && !myReview) {
-      const purchased = await this.prisma.orderItem.findFirst({
-        where: {
-          productId,
-          order: { userId, status: OrderStatus.APPROVED },
-        },
-        select: { id: true },
-      });
-      canReview = Boolean(purchased);
+    if (user && !myReview) {
+      // Los administradores pueden reseñar sin compra previa (útil para
+      // cargar reseñas iniciales desde el panel).
+      if (user.role === Role.ADMIN) {
+        canReview = true;
+      } else {
+        const purchased = await this.prisma.orderItem.findFirst({
+          where: {
+            productId,
+            order: {
+              userId: user.id,
+              status: { in: REVIEWABLE_ORDER_STATUSES },
+            },
+          },
+          select: { id: true },
+        });
+        canReview = Boolean(purchased);
+      }
     }
 
     return {
@@ -71,7 +91,7 @@ export class ReviewsService {
     };
   }
 
-  async create(productId: string, userId: number, dto: CreateReviewDto) {
+  async create(productId: string, user: AuthUser, dto: CreateReviewDto) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { id: true },
@@ -80,21 +100,27 @@ export class ReviewsService {
       throw new NotFoundException('Producto no encontrado');
     }
 
-    const purchased = await this.prisma.orderItem.findFirst({
-      where: {
-        productId,
-        order: { userId, status: OrderStatus.APPROVED },
-      },
-      select: { id: true },
-    });
-    if (!purchased) {
-      throw new ForbiddenException(
-        'Solo podés reseñar productos que compraste y cuyo pago fue aprobado.',
-      );
+    // Los administradores pueden publicar reseñas sin historial de compra.
+    if (user.role !== Role.ADMIN) {
+      const purchased = await this.prisma.orderItem.findFirst({
+        where: {
+          productId,
+          order: {
+            userId: user.id,
+            status: { in: REVIEWABLE_ORDER_STATUSES },
+          },
+        },
+        select: { id: true },
+      });
+      if (!purchased) {
+        throw new ForbiddenException(
+          'Solo podés reseñar productos que hayas comprado y recibido',
+        );
+      }
     }
 
     const existing = await this.prisma.productReview.findUnique({
-      where: { productId_userId: { productId, userId } },
+      where: { productId_userId: { productId, userId: user.id } },
     });
     if (existing) {
       throw new ConflictException('Ya dejaste una reseña para este producto');
@@ -103,7 +129,7 @@ export class ReviewsService {
     return this.prisma.productReview.create({
       data: {
         productId,
-        userId,
+        userId: user.id,
         rating: dto.rating,
         comment: dto.comment.trim(),
       },

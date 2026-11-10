@@ -16,7 +16,7 @@
 - `Product`: id, name, description, price, stock, imageUrl, highlighted, categoryId, specs
 - `ProductVariant`: id, name, value, stock, price?, productId
 - `CartReservation`: id, sessionId, productId, variantId?, quantity, expiresAt (TTL 10 min)
-- `Order`: id, userId, total, status (`PENDING` | `APPROVED` | `REJECTED`), deliveryType (`HOME_DELIVERY` | `PICKUP`), mpPreferenceId, mpPaymentId
+- `Order`: id, userId, total, status (`PENDING` | `APPROVED` | `IN_PREPARATION` | `READY_FOR_PICKUP` | `SHIPPED` | `DELIVERED` | `CANCELLED`), deliveryType (`SHIPPING` | `PICKUP`), `shippingAddress` (snapshot JSON), `trackingNumber`, `paymentMethod`, mpPreferenceId, mpPaymentId
 - `OrderItem`: id, orderId, productId, quantity, price, `variantId`, `variantLabel`
 - `Address`: id, userId, street, number, apartment?, city, state, zipCode, isDefault
 - `ProductReview`: id, productId, userId, rating (1–5), comment, createdAt — único por `[productId, userId]`
@@ -35,6 +35,7 @@
 - `/profile` — datos personales, direcciones e historial de compras
 - `/dashboard` — redirige a `/profile`
 - `/admin` — productos (CRUD, variantes, destacados)
+- `/admin/orders` — gestión de ventas: estados, entrega y seguimiento
 - `/admin/categories` — categorías
 - `/admin/banners` — banners
 - `/admin/questions` — responder preguntas de clientes
@@ -48,7 +49,7 @@
 - **Reviews:** `GET /api/products/:id/reviews` (público), `POST` (auth + orden `APPROVED`)
 - **Questions:** `GET/POST /api/products/:id/questions`, `GET /api/questions` y `PATCH /api/questions/:id/answer` (ADMIN)
 - **Reservations:** `POST/GET/DELETE /api/reservations` (stock temporal por `sessionId`)
-- **Orders:** `POST/GET /api/orders` (auth)
+- **Orders:** `POST/GET /api/orders` (auth), `GET /api/orders/admin` y `PATCH /api/orders/admin/:id/status` (ADMIN)
 - **Payments:** `POST /api/payments/preference` (auth), `POST /api/payments/webhook` (MP)
 
 ## Decisiones de arquitectura
@@ -96,3 +97,4 @@
 - [x] Product questions & admin answers panel
 - [x] Multi-image product gallery upload (up to 10, first = main)
 - [x] Parametrized admin seed from `ADMIN_*` env vars
+- [x] Sales management: order statuses, shipping tracking and `/admin/orders`

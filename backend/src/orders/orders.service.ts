@@ -4,10 +4,24 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus, Role } from '@prisma/client';
+import { DeliveryType, OrderStatus, Prisma, Role } from '@prisma/client';
 import { AuthUser } from '../common/interfaces/jwt-payload.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+
+const ORDER_DETAIL_INCLUDE = {
+  items: { include: { product: true } },
+  user: {
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      documentNumber: true,
+    },
+  },
+} satisfies Prisma.OrderInclude;
 
 @Injectable()
 export class OrdersService {
@@ -90,6 +104,9 @@ export class OrdersService {
           total,
           status: OrderStatus.PENDING,
           deliveryType: dto.deliveryType,
+          shippingAddress: dto.shippingAddress
+            ? (dto.shippingAddress as unknown as Prisma.InputJsonValue)
+            : undefined,
           items: {
             create: dto.items.map((item) => ({
               productId: item.productId,
@@ -123,6 +140,44 @@ export class OrdersService {
         user: { select: { id: true, email: true } },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  findAllAdmin(filters: {
+    status?: OrderStatus;
+    deliveryType?: DeliveryType;
+  }) {
+    return this.prisma.order.findMany({
+      where: {
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(filters.deliveryType
+          ? { deliveryType: filters.deliveryType }
+          : {}),
+      },
+      include: ORDER_DETAIL_INCLUDE,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateStatus(id: number, dto: UpdateOrderStatusDto) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Pedido no encontrado');
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: {
+        status: dto.status,
+        ...(dto.trackingNumber !== undefined && {
+          trackingNumber: dto.trackingNumber.trim() || null,
+        }),
+      },
+      include: ORDER_DETAIL_INCLUDE,
     });
   }
 
